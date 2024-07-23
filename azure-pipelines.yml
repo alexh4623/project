@@ -1,19 +1,51 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+- stage: Deploy
+  jobs:
+  - job: TerraformInit
+    displayName: 'Terraform Init and Apply'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    - script: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+        . ~/.nvm/nvm.sh
+        nvm install node
+        nvm use node
+        npm install -g terraform
+      displayName: 'Install Terraform'
+
+    - script: |
+        terraform --version
+      displayName: 'Check Terraform version'
+
+    - script: |
+        terraform init
+      displayName: 'Terraform Init'
+    
+    - script: |
+        terraform plan -out=tfplan -var "instance_count=$(TF_VAR_instance_count)" -var "ami_id=$(TF_VAR_ami_id)" -var "instance_type=$(TF_VAR_instance_type)"
+      displayName: 'Terraform Plan'
+    
+    - script: |
+        terraform apply -auto-approve tfplan
+      displayName: 'Terraform Apply'
+
+- stage: PostDeploy
+  dependsOn: Deploy
+  jobs:
+  - job: PingTest
+    displayName: 'Run Ping Tests'
+    steps:
+    - script: |
+        terraform init
+        terraform apply -auto-approve
+      displayName: 'Run Ping Tests'
