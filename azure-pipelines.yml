@@ -62,10 +62,10 @@ stages:
         terraform apply -auto-approve
         
         terraform output -json > terraform_output.json
-        echo "$(terraform output -raw private_key_pem)" > ~/myagent/.ssh/key.pem
-        chmod 600 ~/myagent/.ssh/key.pem
+        echo "$(terraform output -raw private_key_pem)" > ~/.ssh/key.pem
+        chmod 600 ~/.ssh/key.pem
         #!/bin/bash
-        INVENTORY_FILE="~/myagent/_work/1/s/inventory.ini"
+        INVENTORY_FILE="/home/ubuntu/myagent/_work/1/s/inventory.ini"
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
     
         echo "[servers]" > "$INVENTORY_FILE"
@@ -73,7 +73,7 @@ stages:
           echo "server ansible_host=$ip" >> "$INVENTORY_FILE"
         done
         echo "this is inventory.ini"
-        cat ~/myagent/_work/1/s/inventory.ini
+        cat /home/ubuntu/myagent/_work/1/s/inventory.ini
         echo "this is terraform.json"
         cat terraform_output.json  # Display the JSON for debugging
       env:
