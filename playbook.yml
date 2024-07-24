@@ -12,6 +12,16 @@
         mode: '0755'
         state: file
 
+    - name: Check if ping script exists
+      stat:
+        path: /tmp/ping_script.sh
+      register: ping_script
+
+    - name: Fail if ping script does not exist
+      fail:
+        msg: "/tmp/ping_script.sh does not exist on {{ inventory_hostname }}"
+      when: not ping_script.stat.exists
+
     - name: Run ping script
       shell: /tmp/ping_script.sh
       register: result
