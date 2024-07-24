@@ -93,10 +93,12 @@ stages:
 
     - script: |
         sudo apt-get update
-        sudo apt-get install -y software-properties-common
-        sudo apt-add-repository --yes --update ppa:ansible/ansible
-        sudo apt-get install -y ansible
-        ansible --version
+        sudo apt-get install -y python3.8 python3-pip
+      displayName: 'Install Python 3.8'
+
+    - script: |
+        python3.8 -m pip install --upgrade pip
+        pip install ansible
       displayName: 'Install Ansible'
 
     - script: |
