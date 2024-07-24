@@ -99,5 +99,5 @@ stages:
       displayName: 'Install Ansible'
 
     - script: |
-        ansible-playbook -i inventory.ini playbook.yml
+        ansible-playbook -i /home/ubuntu/myagent/_work/1/s/inventory.ini playbook.yml
       displayName: 'Run Ansible Playbook'
