@@ -2,6 +2,12 @@
 - name: Run script on deployed machines
   hosts: all
   tasks:
+    - name: Ensure ping script has execute permission
+      file:
+        path: /tmp/ping_script.sh
+        mode: '0755'
+        state: file
+
     - name: Run ping script
       command: /tmp/ping_script.sh
       register: result
