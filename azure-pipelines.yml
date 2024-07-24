@@ -44,11 +44,12 @@ stages:
     displayName: 'Terraform Init and Apply'
     steps: 
     - script: |
-        cd $(System.DefaultWorkingDirectory)/infra
+        cd ~/myagent/_work/1/s/infra
         terraform --version
       displayName: 'Check Terraform version'
 
     - script: |
+        cd ~/myagent/_work/1/s/infra
         terraform init
       displayName: 'Terraform Init'
     
