@@ -2,6 +2,10 @@
 - name: Run script on deployed machines
   hosts: all
   tasks:
+    - name: Display the hostname of the current server
+      debug:
+        msg: "Connected to server: {{ inventory_hostname }}"
+
     - name: Ensure ping script has execute permission
       file:
         path: /tmp/ping_script.sh
@@ -9,17 +13,19 @@
         state: file
 
     - name: Run ping script
-      command: /tmp/ping_script.sh
+      shell: /tmp/ping_script.sh
       register: result
+      ignore_errors: yes
 
     - name: Print result of running the script
       debug:
-        msg: "{{ result.stdout }}"
+        msg: "Result of running the script on {{ inventory_hostname }}: {{ result.stdout }}"
 
     - name: Print contents of ping_results.log
-      command: cat /tmp/ping_results.log
+      shell: cat /tmp/ping_results.log
       register: ping_log_result
+      ignore_errors: yes
 
     - name: Display contents of ping_results.log
       debug:
-        msg: "{{ ping_log_result.stdout }}"
+        msg: "Contents of ping_results.log on {{ inventory_hostname }}: {{ ping_log_result.stdout }}"
