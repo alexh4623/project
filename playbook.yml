@@ -12,6 +12,14 @@
       command: /tmp/ping_script.sh
       register: result
 
-    - name: Print result
+    - name: Print result of running the script
       debug:
         msg: "{{ result.stdout }}"
+
+    - name: Print contents of ping_results.log
+      command: cat /tmp/ping_results.log
+      register: ping_log_result
+
+    - name: Display contents of ping_results.log
+      debug:
+        msg: "{{ ping_log_result.stdout }}"
