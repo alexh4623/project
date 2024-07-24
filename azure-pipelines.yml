@@ -54,6 +54,7 @@ stages:
       displayName: 'Terraform Init'
     
     - script: |
+        cd ~/myagent/_work/1/s/infra
         terraform apply -auto-approve
       displayName: 'Terraform Apply'
 
