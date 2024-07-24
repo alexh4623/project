@@ -60,18 +60,8 @@ stages:
         terraform import aws_ssm_parameter.admin_password[1] admin_password_1
         terraform import aws_ssm_parameter.admin_password[2] admin_password_2
         terraform apply -auto-approve
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_REGION)
-      displayName: 'Terraform Apply'
-    
-    - script: |
         terraform output -json > terraform_output.json
-      displayName: 'Generate Ansible hosts file'
-    - script: |
         #!/bin/bash
-        terraform output -json > terraform_output.json
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
     
         echo "[servers]" > inventory.ini
@@ -79,6 +69,12 @@ stages:
           echo "$ip" >> inventory.ini
         done
         cat inventory.ini
+        cat terraform_output.json  # Display the JSON for debugging
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_REGION)
+      displayName: 'Terraform Apply'  
       
 - stage: Configure
   dependsOn: Deploy
