@@ -11,24 +11,38 @@ variables:
 
 
 stages:
+- stage: InstallTerraform
+  displayName: 'Install Terraform'
+  jobs:
+  - job: InstallTerraform
+    displayName: 'Install Terraform'
+    pool:
+      name: 'aws'
+
+    steps:
+    - script: |
+        # Install unzip utility
+        sudo apt-get update
+        sudo apt-get install -y unzip
+
+        # Download Terraform binary
+        curl -fsSL https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip -o terraform.zip
+        
+        # Unzip Terraform binary
+        unzip terraform.zip
+
+        # Move Terraform binary to /usr/local/bin directory (you might need sudo privileges)
+        sudo mv terraform /usr/local/bin/terraform
+
+        # Verify Terraform installation
+        terraform --version
+      displayName: 'Install Terraform'
+
 - stage: Deploy
   jobs:
   - job: TerraformInit
     displayName: 'Terraform Init and Apply'
     steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.x'
-        addToPath: true
-
-    - script: |
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-        . ~/.nvm/nvm.sh
-        nvm install node
-        nvm use node
-        npm install -g terraform
-      displayName: 'Install Terraform'
-
     - script: |
         terraform --version
       displayName: 'Check Terraform version'
