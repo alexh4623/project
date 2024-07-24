@@ -6,8 +6,8 @@ pool:
   
 variables:
   AWS_REGION: 'eu-west-1'
-  AWS_ACCESS_KEY_ID: $(awsAccessKeyId)
-  AWS_SECRET_ACCESS_KEY: $(awsSecretAccessKey)
+  AWS_ACCESS_KEY_ID: $(AKIA47CRYSQF4GAAUDVD)
+  AWS_SECRET_ACCESS_KEY: $(secret_key)
 
 
 stages:
