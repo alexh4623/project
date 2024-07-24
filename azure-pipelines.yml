@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'aws'
+  name: 'aws'
   
 variables:
   AWS_REGION: 'eu-west-1'
