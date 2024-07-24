@@ -2,7 +2,13 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'aws'
+  
+variables:
+  AWS_REGION: 'eu-west-1'
+  AWS_ACCESS_KEY_ID: $(awsAccessKeyId)
+  AWS_SECRET_ACCESS_KEY: $(awsSecretAccessKey)
+
 
 stages:
 - stage: Deploy
@@ -32,20 +38,33 @@ stages:
       displayName: 'Terraform Init'
     
     - script: |
-        terraform plan -out=tfplan -var "instance_count=$(TF_VAR_instance_count)" -var "ami_id=$(TF_VAR_ami_id)" -var "instance_type=$(TF_VAR_instance_type)"
-      displayName: 'Terraform Plan'
-    
-    - script: |
-        terraform apply -auto-approve tfplan
+        terraform apply -auto-approve
       displayName: 'Terraform Apply'
 
-- stage: PostDeploy
+    - script: |
+        echo '[all]' > hosts
+        terraform output -json instance_ips | jq -r '.[]' | awk '{print $1 " ansible_user=ec2-user"}' >> hosts
+      displayName: 'Generate Ansible hosts file'
+      
+- stage: Configure
   dependsOn: Deploy
   jobs:
-  - job: PingTest
-    displayName: 'Run Ping Tests'
+  - job: Ansible
+    displayName: 'Run Ansible Playbook'
     steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+
     - script: |
-        terraform init
-        terraform apply -auto-approve
-      displayName: 'Run Ping Tests'
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        sudo apt-add-repository --yes --update ppa:ansible/ansible
+        sudo apt-get install -y ansible
+        ansible --version
+      displayName: 'Install Ansible'
+
+    - script: |
+        ansible-playbook -i hosts playbook.yml
+      displayName: 'Run Ansible Playbook'
