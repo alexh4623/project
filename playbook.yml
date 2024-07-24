@@ -1,0 +1,11 @@
+---
+- name: Run script on deployed machines
+  hosts: all
+  tasks:
+    - name: Run ping script
+      command: /tmp/ping_script.sh
+      register: result
+
+    - name: Print result
+      debug:
+        msg: "{{ result.stdout }}"
