@@ -68,7 +68,9 @@ stages:
         for ip in $IPs; do
           echo "$ip" >> inventory.ini
         done
+        echo "this is inventory.ini"
         cat inventory.ini
+        echo "this is terraform.json"
         cat terraform_output.json  # Display the JSON for debugging
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
