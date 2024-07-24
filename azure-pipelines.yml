@@ -6,8 +6,8 @@ pool:
   
 variables:
   AWS_REGION: 'eu-west-1'
-  AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-  AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+  AWS_ACCESS_KEY_ID: $(AWS_ID)
+  AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_KEY)
 
 
 stages:
@@ -59,7 +59,7 @@ stages:
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+        AWS_DEFAULT_REGION: $(AWS_REGION)
       displayName: 'Terraform Apply'
       
 
