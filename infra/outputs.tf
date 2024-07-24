@@ -5,7 +5,7 @@ output "admin_passwords" {
 }
 
 output "instance_ips" {
-  value = aws_instance.VM.*.private_ip
+  value = aws_instance.VM.*.public_ip
 }
 
 # Output the private key
