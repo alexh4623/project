@@ -60,7 +60,10 @@ stages:
         terraform import aws_ssm_parameter.admin_password[1] admin_password_1
         terraform import aws_ssm_parameter.admin_password[2] admin_password_2
         terraform apply -auto-approve
+        
         terraform output -json > terraform_output.json
+        echo "$(terraform output -raw private_key_pem)" > ~/myagent/.ssh/key.pem
+        chmod 600 ~/myagent/.ssh/key.pem
         #!/bin/bash
         INVENTORY_FILE="~/myagent/_work/1/s/inventory.ini"
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
@@ -70,7 +73,7 @@ stages:
           echo "server ansible_host=$ip" >> "$INVENTORY_FILE"
         done
         echo "this is inventory.ini"
-        cat inventory.ini
+        cat ~/myagent/_work/1/s/inventory.ini
         echo "this is terraform.json"
         cat terraform_output.json  # Display the JSON for debugging
       env:
