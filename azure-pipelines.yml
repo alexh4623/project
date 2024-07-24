@@ -56,7 +56,12 @@ stages:
     - script: |
         cd ~/myagent/_work/1/s/infra
         terraform apply -auto-approve
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
       displayName: 'Terraform Apply'
+      
 
     - script: |
         echo '[all]' > hosts
