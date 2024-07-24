@@ -1,10 +1,53 @@
+
+data "aws_vpc" "existing_vpc" {
+  id = "vpc-01a385d1cbfb3c5f1" # Replace with your existing VPC ID
+}
+
 resource "aws_vpc" "main_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = "10.1.0.0/16"
+}
+
+resource "aws_vpc_peering_connection" "peer" {
+  vpc_id        = aws_vpc.main_vpc.id
+  peer_vpc_id    = data.aws_vpc.existing_vpc.id
+  auto_accept    = true  
+
+  tags = {
+    Name = "vpc-peer-connection"
+  }
+}
+
+resource "aws_route" "to_existing_vpc" {
+  route_table_id         = aws_vpc.main_vpc.main_route_table_id
+  destination_cidr_block = data.aws_vpc.existing_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
+
+  depends_on = [aws_vpc_peering_connection.peer]
+}
+
+# Add route to the existing VPC to route traffic to the new VPC
+resource "aws_route" "to_main_vpc" {
+  route_table_id         = data.aws_vpc.existing_vpc.main_route_table_id
+  destination_cidr_block = aws_vpc.main_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
+
+  depends_on = [aws_vpc_peering_connection.peer]
+}
+
+# Accept the VPC peering connection from the existing VPC side
+resource "aws_vpc_peering_connection_accepter" "accept" {
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
+  auto_accept               = true
+  tags = {
+    Name = "vpc-peer-connection-accepter"
+  }
+
+  depends_on = [aws_vpc_peering_connection.peer]
 }
 
 resource "aws_subnet" "main_subnet" {
     vpc_id = aws_vpc.main_vpc.id
-    cidr_block = "10.0.1.0/24"
+    cidr_block = "10.1.1.0/24"
     map_public_ip_on_launch = true
 }
 
@@ -91,6 +134,26 @@ resource "aws_network_acl" "main_acl" {
     cidr_block = "10.0.0.0/16"
     from_port  = 0
     to_port    = 65535
+  }
+
+  # Allow all outbound traffic
+  egress {
+    protocol   = "-1"   # -1 means all protocols
+    rule_no    = 300    # Use a unique rule number
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0     # 0 to 0 implies all ports for all protocols
+  }
+
+  # Allow all inbound traffic
+  ingress {
+    protocol   = "-1"   # -1 means all protocols
+    rule_no    = 300    # Use a unique rule number
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0     # 0 to 0 implies all ports for all protocols
   }
 }
 
