@@ -62,11 +62,12 @@ stages:
         terraform apply -auto-approve
         terraform output -json > terraform_output.json
         #!/bin/bash
+        INVENTORY_FILE="~/myagent/_work/1/s/inventory.ini"
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
     
-        echo "[servers]" > inventory.ini
+        echo "[servers]" > "$INVENTORY_FILE"
         for ip in $IPs; do
-          echo "server ansible_host=$ip" >> inventory.ini
+          echo "server ansible_host=$ip" >> "$INVENTORY_FILE"
         done
         echo "this is inventory.ini"
         cat inventory.ini
