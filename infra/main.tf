@@ -8,6 +8,24 @@ resource "aws_subnet" "main_subnet" {
     map_public_ip_on_launch = true
 }
 
+resource "aws_internet_gateway" "main_igw" {
+  vpc_id = aws_vpc.main_vpc.id
+}
+
+resource "aws_route_table" "main_route_table" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main_igw.id
+  }
+}
+
+resource "aws_route_table_association" "main_subnet_association" {
+  subnet_id      = aws_subnet.main_subnet.id
+  route_table_id = aws_route_table.main_route_table.id
+}
+
 resource "aws_security_group" "main_sg" {
   name        = "main_sg"
   description = "Allow ICMP traffic"
@@ -32,6 +50,47 @@ resource "aws_security_group" "main_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_network_acl" "main_acl" {
+  vpc_id = aws_vpc.main_vpc.id
+  subnet_ids = [aws_subnet.main_subnet.id]
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 65535
+  }
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 22
+    to_port    = 22
+  }
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 200
+    action     = "allow"
+    cidr_block = "10.0.0.0/16"
+    from_port  = 0
+    to_port    = 65535
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 200
+    action     = "allow"
+    cidr_block = "10.0.0.0/16"
+    from_port  = 0
+    to_port    = 65535
   }
 }
 
@@ -86,7 +145,7 @@ resource "aws_instance" "VM" {
 
     connection {
       type        = "ssh"
-      user        = "admin"
+      user        = "ec2-user"
       private_key = tls_private_key.ssh_key.private_key_pem
       host        = self.public_ip
     }
