@@ -8,6 +8,11 @@ output "instance_ips" {
   value = aws_instance.VM.*.private_ip
 }
 
+# Output the private key
+output "private_key_pem" {
+  value = tls_private_key.ssh_key.private_key_pem
+  sensitive = true
+}
 /*output "ping_results" {
   value = "Ping results will be in /tmp/ping_results.log on each instance."
 }*/
