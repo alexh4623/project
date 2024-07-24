@@ -22,6 +22,15 @@
         msg: "/tmp/ping_script.sh does not exist on {{ inventory_hostname }}"
       when: not ping_script.stat.exists
 
+    - name: Display the contents of the ping script
+      shell: cat /tmp/ping_script.sh
+      register: script_content
+      ignore_errors: yes
+
+    - name: Print the contents of the ping script
+      debug:
+        msg: "Contents of /tmp/ping_script.sh on {{ inventory_hostname }}: {{ script_content.stdout }}"
+
     - name: Run ping script
       shell: /tmp/ping_script.sh
       register: result
@@ -29,7 +38,7 @@
 
     - name: Print result of running the script
       debug:
-        msg: "Result of running the script on {{ inventory_hostname }}: {{ result.stdout }}"
+        msg: "Result of running the script on {{ inventory_hostname }}: stdout={{ result.stdout }} stderr={{ result.stderr }}"
 
     - name: Print contents of ping_results.log
       shell: cat /tmp/ping_results.log
