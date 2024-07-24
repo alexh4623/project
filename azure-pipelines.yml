@@ -65,12 +65,20 @@ stages:
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
         AWS_DEFAULT_REGION: $(AWS_REGION)
       displayName: 'Terraform Apply'
-      
-
+    
     - script: |
-        echo '[all]' > hosts
-        terraform output -json instance_ips | jq -r '.[]' | awk '{print $1 " ansible_user=ec2-user"}' >> hosts
+        terraform output -json > terraform_output.json
       displayName: 'Generate Ansible hosts file'
+    - script: |
+        #!/bin/bash
+        terraform output -json > terraform_output.json
+        IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
+    
+        echo "[servers]" > inventory.ini
+        for ip in $IPs; do
+          echo "$ip" >> inventory.ini
+        done
+        cat inventory.ini
       
 - stage: Configure
   dependsOn: Deploy
@@ -80,7 +88,7 @@ stages:
     steps:
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '3.x'
+        versionSpec: '3.8'
         addToPath: true
 
     - script: |
