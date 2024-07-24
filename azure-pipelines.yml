@@ -65,7 +65,7 @@ stages:
         echo "$(terraform output -raw private_key_pem)" > ~/.ssh/key.pem
         chmod 600 ~/.ssh/key.pem
         #!/bin/bash
-        INVENTORY_FILE="/home/ubuntu/myagent/_work/1/s/inventory.ini"
+        INVENTORY_FILE="/home/ubuntu/myagent/inventory.ini"
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
     
         echo "[servers]" > "$INVENTORY_FILE"
@@ -73,7 +73,7 @@ stages:
           echo "server ansible_host=$ip" >> "$INVENTORY_FILE"
         done
         echo "this is inventory.ini"
-        cat /home/ubuntu/myagent/_work/1/s/inventory.ini
+        cat /home/ubuntu/myagent/inventory.ini
         echo "this is terraform.json"
         cat terraform_output.json  # Display the JSON for debugging
       env:
@@ -99,5 +99,5 @@ stages:
       displayName: 'Install Ansible'
 
     - script: |
-        ansible-playbook -i /home/ubuntu/myagent/_work/1/s/inventory.ini playbook.yml
+        ansible-playbook -i /home/ubuntu/myagent/inventory.ini playbook.yml
       displayName: 'Run Ansible Playbook'
