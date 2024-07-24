@@ -95,5 +95,5 @@ stages:
       displayName: 'Install Ansible'
 
     - script: |
-        ansible-playbook -i hosts playbook.yml
+        ansible-playbook -i inventory.ini playbook.yml
       displayName: 'Run Ansible Playbook'
