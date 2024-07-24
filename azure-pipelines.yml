@@ -69,7 +69,6 @@ stages:
         IPFILE="/tmp/instance_ips.txt"
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
     
-        echo "[servers]" > "$INVENTORY_FILE"
         for ip in $IPs; do
           echo "server ansible_host=$ip ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/key.pem" >> "$INVENTORY_FILE"
           echo "$ip" >> "$IPFILE"
