@@ -42,8 +42,9 @@ stages:
   jobs:
   - job: TerraformInit
     displayName: 'Terraform Init and Apply'
-    steps:
+    steps: 
     - script: |
+        cd $(System.DefaultWorkingDirectory)/infra
         terraform --version
       displayName: 'Check Terraform version'
 
