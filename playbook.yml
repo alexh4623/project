@@ -48,3 +48,24 @@
     - name: Display contents of ping_results.log
       debug:
         msg: "Contents of ping_results.log on {{ inventory_hostname }}: {{ ping_log_result.stdout }}"
+
+    - name: Fetch ping_results.log from remote servers
+      fetch:
+        src: /tmp/ping_results.log
+        dest: /tmp/ping_results_{{ inventory_hostname }}.log
+        flat: yes
+
+- name: Combine all ping results into a single file
+  hosts: localhost
+  tasks:
+    - name: Ensure combined results file is empty
+      copy:
+        content: ""
+        dest: /tmp/combined_ping_results.log
+
+    - name: Combine all fetched log files into one
+      shell: cat /tmp/ping_results_*.log >> /tmp/combined_ping_results.log
+
+    - name: Display combined ping results
+      debug:
+        msg: "Combined ping results:\n{{ lookup('file', '/tmp/combined_ping_results.log') }}"
