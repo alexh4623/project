@@ -1,4 +1,20 @@
 ---
+- name: Distribute the instance IPs file to target machines
+  hosts: all
+  tasks:
+    - name: Copy the instance IPs file to the target machine
+      copy:
+        src: /tmp/instance_ips.txt
+        dest: /tmp/instance_ips.txt
+
+    - name: Display the contents of the instance IPs file
+      command: cat /tmp/instance_ips.txt
+      register: ip_file_content
+
+    - name: Show the instance IPs file content
+      debug:
+        msg: "Contents of instance_ips.txt on {{ inventory_hostname }}: {{ ip_file_content.stdout }}"
+        
 - name: Run script on deployed machines
   hosts: all
   tasks:
