@@ -67,6 +67,10 @@ stages:
         #!/bin/bash
         INVENTORY_FILE="/home/ubuntu/myagent/inventory.ini"
         IPFILE="/tmp/instance_ips.txt"
+
+        echo "[all]" > "$INVENTORY_FILE"
+        echo "" > "$IPFILE"
+        
         IPs=$(jq -r '.instance_ips.value[]' terraform_output.json)
     
         for ip in $IPs; do
