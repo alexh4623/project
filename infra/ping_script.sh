@@ -1,24 +1,34 @@
 #!/bin/bash
 
-# Get the list of IP addresses
-INSTANCE_IPS=$(cat /tmp/instance_ips.txt)
+# File containing the IP addresses
+IP_FILE="/tmp/instance_ips.txt"
+# Log file to record the results
+LOG_FILE="/tmp/ping_results.log"
 
-# Convert the IP addresses into an array
-IFS=' ' read -r -a IP_ARRAY <<< "$INSTANCE_IPS"
+# Read IPs into an array
+readarray -t IPS < "$IP_FILE"
 
-# Create a file to store results
-RESULT_FILE="/tmp/ping_results.log"
-> $RESULT_FILE
+# Ensure we have at least two IPs
+if [ "${#IPS[@]}" -lt 2 ]; then
+  echo "Error: At least 2 IP addresses are required in $IP_FILE" | tee -a "$LOG_FILE"
+  exit 1
+fi
 
-# Perform round-robin ping tests
-for i in "${!IP_ARRAY[@]}"; do
-    source_ip=${IP_ARRAY[$i]}
-    target_ip=${IP_ARRAY[$(( (i + 1) % ${#IP_ARRAY[@]} ))]}
+# Function to perform the ping and log the result
+ping_and_log() {
+  local source_ip="$1"
+  local target_ip="$2"
 
-    echo "Pinging from $source_ip to $target_ip" >> $RESULT_FILE
-    if ping -c 3 $target_ip > /dev/null; then
-        echo "Success" >> $RESULT_FILE
-    else
-        echo "Fail" >> $RESULT_FILE
-    fi
+  if ping -c 1 "$target_ip" &> /dev/null; then
+    echo "Success: $source_ip -> $target_ip" | tee -a "$LOG_FILE"
+  else
+    echo "Fail: $source_ip -> $target_ip" | tee -a "$LOG_FILE"
+  fi
+}
+
+# Perform round-robin pings
+for ((i = 0; i < ${#IPS[@]}; i++)); do
+  source_ip=${IPS[$i]}
+  target_ip=${IPS[$(( (i+1) % ${#IPS[@]} ))]}
+  ping_and_log "$source_ip" "$target_ip"
 done
