@@ -8,13 +8,13 @@ LOG_FILE="/tmp/ping_results.log"
 # Read IPs into an array
 readarray -t IPS < "$IP_FILE"
 
-# Ensure we have at least two IPs
+# at least 2 ips
 if [ "${#IPS[@]}" -lt 2 ]; then
   echo "Error: At least 2 IP addresses are required in $IP_FILE" | tee -a "$LOG_FILE"
   exit 1
 fi
 
-# Function to perform the ping and log the result
+# ping function
 ping_and_log() {
   local source_ip="$1"
   local target_ip="$2"
@@ -26,7 +26,7 @@ ping_and_log() {
   fi
 }
 
-# Perform round-robin pings
+# round-robin pings
 for ((i = 0; i < ${#IPS[@]}; i++)); do
   source_ip=${IPS[$i]}
   target_ip=${IPS[$(( (i+1) % ${#IPS[@]} ))]}

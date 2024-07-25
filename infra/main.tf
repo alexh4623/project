@@ -1,6 +1,6 @@
 
 data "aws_vpc" "existing_vpc" {
-  id = "vpc-01a385d1cbfb3c5f1" # Replace with your existing VPC ID
+  id = "vpc-01a385d1cbfb3c5f1" 
 }
 
 resource "aws_vpc" "main_vpc" {
@@ -138,22 +138,22 @@ resource "aws_network_acl" "main_acl" {
 
   # Allow all outbound traffic
   egress {
-    protocol   = "-1"   # -1 means all protocols
-    rule_no    = 300    # Use a unique rule number
+    protocol   = "-1"   # -1  all protocols
+    rule_no    = 300    
     action     = "allow"
     cidr_block = "0.0.0.0/0"
     from_port  = 0
-    to_port    = 0     # 0 to 0 implies all ports for all protocols
+    to_port    = 0     # 0 to 0  all ports for all protocols
   }
 
   # Allow all inbound traffic
   ingress {
-    protocol   = "-1"   # -1 means all protocols
-    rule_no    = 300    # Use a unique rule number
+    protocol   = "-1"   
+    rule_no    = 300    
     action     = "allow"
     cidr_block = "0.0.0.0/0"
     from_port  = 0
-    to_port    = 0     # 0 to 0 implies all ports for all protocols
+    to_port    = 0     
   }
 }
 
@@ -190,9 +190,7 @@ resource "aws_instance" "VM" {
     ami = var.ami_id
     instance_type = var.instance_type
     subnet_id = aws_subnet.main_subnet.id
-    //security_groups   = [aws_security_group.main_sg.name]
     vpc_security_group_ids = [aws_security_group.main_sg.id]
-
 
     tags = {
         Name = "VM-${count.index}"
@@ -214,21 +212,6 @@ resource "aws_instance" "VM" {
     }
   }
 
-  /*provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/ping_script.sh",
-      "echo '${join(" ", aws_instance.VM.*.private_ip)}' > /tmp/instance_ips.txt",
-      "/tmp/ping_script.sh",
-      "cat /tmp/ping_results.log"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = "admin"
-      private_key = tls_private_key.ssh_key.private_key_pem
-      host        = self.public_ip
-    }
-  }*/
   depends_on = [
     aws_security_group.main_sg,
     aws_key_pair.deployer,
